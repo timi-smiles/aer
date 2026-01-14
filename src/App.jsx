@@ -15,6 +15,8 @@ function Home() {
         <div className="flex gap-4 justify-center">
           <Link 
             to="/volunteers"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-white font-semibold py-4 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
             style={{ background: 'linear-gradient(90deg, #00C6FF 0%, #0072FF 100%)' }}
           >
@@ -22,6 +24,8 @@ function Home() {
           </Link>
           <Link 
             to="/funding"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-white font-semibold py-4 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
             style={{ background: 'linear-gradient(135deg, #6A11CB 0%, #2575FC 100%)' }}
           >
