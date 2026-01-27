@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useForm } from '@formspree/react';
 import aerLogo from '../assets/aeR-Logo-V2.png';
 
 function Volunteers() {
+  const [state, handleSubmit] = useForm('xjgwlwqo');
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -14,7 +17,7 @@ function Volunteers() {
     motivation: ''
   });
   
-  const [submitted, setSubmitted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -23,43 +26,11 @@ function Volunteers() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Prepare email content
-    const emailSubject = 'AER Volunteer Application - ' + formData.fullName;
-    const emailBody = `
-Volunteer Application Form Submission
-
-Full Name: ${formData.fullName}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Country: ${formData.country}
-Current Profession: ${formData.profession}
-
-Areas of Expertise:
-${formData.expertise}
-
-Weekly Availability: ${formData.availability}
-
-Relevant Experience:
-${formData.experience}
-
-Motivation:
-${formData.motivation}
-    `.trim();
-
-    // Create mailto link
-    const mailtoLink = `mailto:info@africanenergyresearch.org?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Open email client
-    window.location.href = mailtoLink;
-    
-    // Show success message
-    setSubmitted(true);
-    
+  // Handle successful submission
+  if (state.succeeded && !showSuccess) {
+    setShowSuccess(true);
     setTimeout(() => {
-      setSubmitted(false);
+      setShowSuccess(false);
       setFormData({
         fullName: '',
         email: '',
@@ -72,6 +43,21 @@ ${formData.motivation}
         motivation: ''
       });
     }, 5000);
+  }
+
+  const handleCloseSuccess = () => {
+    setShowSuccess(false);
+    setFormData({
+      fullName: '',
+      email: '',
+      phone: '',
+      country: '',
+      profession: '',
+      expertise: '',
+      availability: '',
+      experience: '',
+      motivation: ''
+    });
   };
 
   return (
@@ -108,7 +94,7 @@ ${formData.motivation}
           {/* Form Card */}
           <div className="max-w-3xl mx-auto">
             <div className="rounded-xl shadow-2xl p-8 md:p-12" style={{ backgroundColor: '#FFFFFF' }}>
-              {!submitted ? (
+              {!showSuccess ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Full Name */}
                   <div>
@@ -283,28 +269,93 @@ ${formData.motivation}
                     />
                   </div>
 
+                  {/* Error Message */}
+                  {state.errors && state.errors.length > 0 && (
+                    <div className="rounded-lg p-4 mb-4" style={{ backgroundColor: '#FEE2E2', border: '1px solid #DC2626' }}>
+                      <p style={{ color: '#DC2626' }}>Failed to submit application. Please try again or email us directly at info@africanenergyresearch.org</p>
+                    </div>
+                  )}
+
                   {/* Submit Button */}
                   <div className="pt-4">
                     <button
                       type="submit"
-                      className="w-full text-white font-semibold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                      disabled={state.submitting}
+                      className="w-full text-white font-semibold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                       style={{ backgroundColor: '#0055FF' }}
                     >
-                      Submit Application
+                      {state.submitting ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Submitting...
+                        </span>
+                      ) : (
+                        'Submit Application'
+                      )}
                     </button>
                   </div>
                 </form>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: '#0055FF20' }}>
-                    <svg className="w-8 h-8" style={{ color: '#0055FF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
+              ) : null}
+
+              {/* Success Modal */}
+              {showSuccess && (
+                <div 
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" 
+                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                  onClick={handleCloseSuccess}
+                >
+                  <div 
+                    className="relative w-full max-w-md animate-scale-in"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="rounded-2xl shadow-2xl p-6 sm:p-8" style={{ backgroundColor: '#FFFFFF' }}>
+                      {/* Close Button */}
+                      <button
+                        onClick={handleCloseSuccess}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        aria-label="Close"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </button>
+
+                      {/* Animated Checkmark */}
+                      <div className="flex justify-center mb-6">
+                        <div className="relative">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center animate-scale-in" style={{ backgroundColor: '#10B981' }}>
+                            <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white animate-check" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                          </div>
+                          {/* Celebration particles */}
+                          <div className="absolute inset-0 animate-particles">
+                            <div className="absolute top-0 left-1/2 w-2 h-2 rounded-full" style={{ backgroundColor: '#10B981', transform: 'translateY(-20px)' }}></div>
+                            <div className="absolute top-1/2 right-0 w-2 h-2 rounded-full" style={{ backgroundColor: '#0055FF', transform: 'translateX(20px)' }}></div>
+                            <div className="absolute bottom-0 left-1/2 w-2 h-2 rounded-full" style={{ backgroundColor: '#F59E0B', transform: 'translateY(20px)' }}></div>
+                            <div className="absolute top-1/2 left-0 w-2 h-2 rounded-full" style={{ backgroundColor: '#8B5CF6', transform: 'translateX(-20px)' }}></div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Success Message */}
+                      <div className="text-center px-2">
+                        <h3 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: '#1A1A3A' }}>Successfully Submitted!</h3>
+                        <p className="text-base sm:text-lg mb-6" style={{ color: '#6B7280' }}>
+                          Thank you for your interest in volunteering with AER. Your application has been sent to <strong style={{ color: '#0055FF' }}>info@africanenergyresearch.org</strong>
+                        </p>
+                        <div className="rounded-lg p-3 sm:p-4 mb-6" style={{ backgroundColor: '#E6F0FF' }}>
+                          <p className="text-sm sm:text-base" style={{ color: '#1A1A3A' }}>
+                            🎯 The coordination team will review your details and contact you when projects matching your profile become available.
+                          </p>
+                        </div>
+                        <p className="text-xs sm:text-sm" style={{ color: '#9CA3AF' }}>This window will close automatically in 5 seconds...</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2" style={{ color: '#1A1A3A' }}>Thank You!</h3>
-                  <p style={{ color: '#666666' }}>
-                    Your details have been received. AER will contact you when suitable volunteer opportunities open.
-                  </p>
                 </div>
               )}
             </div>
