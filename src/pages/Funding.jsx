@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from '@formspree/react';
 import aerLogo from '../assets/aeR-Logo-V2.png';
 
@@ -29,25 +29,28 @@ function Funding() {
   };
 
   // Handle successful submission
-  if (state.succeeded && !showSuccess) {
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        affiliation: '',
-        degree: '',
-        researchTopic: '',
-        fundingAmount: '',
-        timeframe: '',
-        projectDescription: '',
-        methodology: '',
-        expectedOutputs: ''
-      });
-    }, 5000);
-  }
+  useEffect(() => {
+    if (state.succeeded && !showSuccess) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          affiliation: '',
+          degree: '',
+          researchTopic: '',
+          fundingAmount: '',
+          timeframe: '',
+          projectDescription: '',
+          methodology: '',
+          expectedOutputs: ''
+        });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.succeeded, showSuccess]);
 
   const handleCloseSuccess = () => {
     setShowSuccess(false);

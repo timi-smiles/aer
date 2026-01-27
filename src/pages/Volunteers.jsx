@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from '@formspree/react';
 import aerLogo from '../assets/aeR-Logo-V2.png';
 
@@ -27,23 +27,26 @@ function Volunteers() {
   };
 
   // Handle successful submission
-  if (state.succeeded && !showSuccess) {
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        country: '',
-        profession: '',
-        expertise: '',
-        availability: '',
-        experience: '',
-        motivation: ''
-      });
-    }, 5000);
-  }
+  useEffect(() => {
+    if (state.succeeded && !showSuccess) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          country: '',
+          profession: '',
+          expertise: '',
+          availability: '',
+          experience: '',
+          motivation: ''
+        });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.succeeded, showSuccess]);
 
   const handleCloseSuccess = () => {
     setShowSuccess(false);
