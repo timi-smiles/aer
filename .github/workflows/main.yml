@@ -18,7 +18,7 @@ jobs:
           node-version: '20'
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci # Faster and more reliable for builds
 
       - name: 🏗️ Build project
         run: npm run build
@@ -26,13 +26,16 @@ jobs:
       - name: 📂 Sync files to Namecheap
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          server: ${{ secrets.FTP_SERVER }} # Ensure this is the IP: 162.0.209.135
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # Use ./dist/ if you're using Vite, or ./build/ if using Create React App
+          # 1. Use ./dist/ for Vite or ./build/ for Create React App
           local-dir: ./dist/ 
-          # Since the FTP user is portal-deploy@, it usually starts inside the /portal folder
+          # 2. Start from the root folder the FTP user is jailed in
           server-dir: ./ 
           port: 21
-          protocol: ftp
-          timeout: 90000 # Namecheap needs this extra time to handshake
+          # 3. Explicitly use FTPS and loose security for shared hosting certs
+          protocol: ftps
+          security: loose 
+          # 4. Extended timeout for the control socket handshake
+          timeout: 120000
