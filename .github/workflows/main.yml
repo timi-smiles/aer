@@ -1,10 +1,8 @@
 name: 🚀 Deploy Portal to Namecheap
-
 on:
   push:
     branches:
-      - main  # Make sure this matches your branch name (main or master)
-
+      - main
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -30,5 +28,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/  # Use ./build/ if you are not using Vite
-          server-dir: ./
+          # 1. Use 'dist/' for Vite or 'build/' for Create React App
+          local-dir: ./dist/ 
+          # 2. This is the relative path from your FTP login root
+          server-dir: ./portal/ 
+          # 3. Explicitly set protocol to plain ftp for port 21
+          protocol: ftp
+          port: 21
+          # 4. Critical: Increase timeout for Namecheap's slow handshake
+          timeout: 60000
