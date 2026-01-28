@@ -29,9 +29,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # 1. Use ./dist/ for Vite. If you see a 'build' folder locally, use ./build/
+          # 1. local-dir must match your project's output (usually dist for Vite)
           local-dir: ./dist/ 
-          # 2. Points to the root of your portal directory
+          # 2. FIXED: Using ./ ensures files go to the root of the portal folder
           server-dir: ./ 
           port: 21
           protocol: ftps
